@@ -15,6 +15,9 @@ namespace ScreenerApp
     {
         private List<Account> _Accounts;
         private List<Security> _Securities;
+
+        private Account CurentAccount;
+
         private string _Token;
 
         public MainForm()
@@ -34,7 +37,7 @@ namespace ScreenerApp
         {
             var symbols = MT4_API.LoadSymbols(_Token);
 
-            var securities = Securities.Load();
+            var securities = Securities.Load(CurentAccount.Name);
 
             _Securities = symbols.Select(s => {
                 var security = securities.SingleOrDefault(w => w.SymbolName == s.Name);
@@ -48,15 +51,6 @@ namespace ScreenerApp
         private void MainForm_Load(object sender, EventArgs e)
         {
             LoadAccounts();
-
-            /////////////////////////////
-            //var securities = new List<Security>();
-            //securities.Add(new Security() { Market = "CBOE", SymbolName = "Brent", W1 = true, D1 = true });
-            //securities.Add(new Security() { Market = "CME", SymbolName = "EURUSD", M5 = true, M1 = true });
-            //Securities.Save(securities);
-
-            //var loaded = Securities.Load();
-            ////////////////////////////////
         }
 
         private void btnConnect_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -70,6 +64,8 @@ namespace ScreenerApp
                 btnConnect.Enabled = true;
                 return;
             }
+
+            CurentAccount = account;
 
             _Token = MT4_API.GetToken(account.User, account.Password, account.Host, account.Port);
             if (!string.IsNullOrEmpty(_Token))
@@ -96,10 +92,15 @@ namespace ScreenerApp
             dialog.Securities = _Securities;
 
             dialog.ShowDialog(this);
+
+            LoadSecurities();
         }
 
         private void btnLoadData_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+
+
+
             BindingList<ScreenerItem> items = new BindingList<ScreenerItem>();
             gridScreener.DataSource = items;
 

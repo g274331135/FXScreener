@@ -19,12 +19,12 @@ namespace Datafeed
 
         private static HttpClient GetHttpClient()
         {
-            string proxyURL = @"http://83.217.23.35:8090";
+            string proxyURL = @"http://5.189.190.187:8090";
             WebProxy webProxy = new WebProxy(proxyURL);
 
             HttpClientHandler httpClientHandler = new HttpClientHandler
             {
-                Proxy = webProxy
+                //Proxy = webProxy
             };
             HttpClient client = new HttpClient(httpClientHandler);
 

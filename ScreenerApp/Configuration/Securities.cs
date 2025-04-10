@@ -12,13 +12,15 @@ namespace ScreenerApp.Configuration
         private static string FilePath = Environment.CurrentDirectory;
         private static string FileName = "securities.json";
 
-        public static List<Security> Load()
+        public static List<Security> Load(string connectionName)
         {
+            FileName = connectionName;
+
             List<Security> result = new List<Security>();
 
             try
             {
-                using (StreamReader reader = new StreamReader(Path.Combine(FilePath, FileName)))
+                using (StreamReader reader = new StreamReader(Path.Combine(FilePath, "Securities", FileName + ".json")))
                 {
                     var readResult = reader.ReadToEnd();
                     result = JsonConvert.DeserializeObject<List<Security>>(readResult);
@@ -36,7 +38,7 @@ namespace ScreenerApp.Configuration
         {
             try
             {
-                using (StreamWriter writer = new StreamWriter(Path.Combine(FilePath, FileName)))
+                using (StreamWriter writer = new StreamWriter(Path.Combine(FilePath, "Securities", FileName + ".json")))
                 {
                     var data = JsonConvert.SerializeObject(securities);
                     writer.Write(data);
