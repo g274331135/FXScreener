@@ -30,17 +30,12 @@ namespace ScreenerApp
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            try
-            {
-                var securities = Securities.Where(w => w.Active == true && w.Periods.Length > 0).ToList();
-                Configuration.Securities.Save(securities);
+            var securities = Securities.Where(w => w.Periods.Length > 0).ToList();
+            Configuration.Securities.Save(securities);
 
-                MessageBox.Show(this, "Сохранение инструментов выполнено успешно", "Сохранение", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch(Exception ex)
-            {
+            MessageBox.Show(this, "Сохранение инструментов выполнено успешно", "Сохранение", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-            }
+            this.Close();
         }
 
         private void btnClose_Click(object sender, EventArgs e)

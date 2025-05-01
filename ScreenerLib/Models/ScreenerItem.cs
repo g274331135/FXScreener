@@ -1,4 +1,7 @@
-﻿namespace ScreenerLib
+﻿using ScreenerLib.Models;
+using System.Collections.Generic;
+
+namespace ScreenerLib
 {
     public class ScreenerItem
     {
@@ -8,7 +11,9 @@
 
         public string Period { get; set; }
 
-        public int DaysAgo5 { get; set; }
+        public List<Bar> Bars { get; set; }
+
+        public int Days5Ago { get; set; }
 
 
         public override int GetHashCode()

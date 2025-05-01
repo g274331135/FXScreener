@@ -1,4 +1,8 @@
 ﻿using Datafeed;
+using DevExpress.Charts.Native;
+using DevExpress.Utils;
+using DevExpress.XtraCharts;
+using DevExpress.XtraEditors;
 using ScreenerApp.Configuration;
 using ScreenerLib;
 using ScreenerLib.Models;
@@ -18,8 +22,6 @@ namespace ScreenerApp
 
         private Account CurentAccount;
 
-        private string _Token;
-
         public MainForm()
         {
             InitializeComponent();
@@ -35,7 +37,7 @@ namespace ScreenerApp
 
         private void LoadSecurities()
         {
-            var symbols = MT4_API.LoadSymbols(_Token);
+            var symbols = MT4_API.LoadSymbols();
 
             var securities = Securities.Load(CurentAccount.Name);
 
@@ -44,7 +46,7 @@ namespace ScreenerApp
                 if (security == null)
                     return new Security() { Market = s.Market, SymbolName = s.Name };
                 else
-                    return new Security() { Market = security.Market, SymbolName = security.SymbolName, Active = true, Periods = security.Periods };
+                    return new Security() { Market = security.Market, SymbolName = security.SymbolName, Periods = security.Periods };
             }).ToList();
         }
 
@@ -67,8 +69,7 @@ namespace ScreenerApp
 
             CurentAccount = account;
 
-            _Token = MT4_API.GetToken(account.User, account.Password, account.Host, account.Port);
-            if (!string.IsNullOrEmpty(_Token))
+            if (MT4_API.Connect(account.User, account.Password, account.Host, account.Port))
             {
                 btnConnect.ItemAppearance.Normal.BackColor = Color.LightGreen;
                 btnSecurities.Enabled = true;
@@ -99,34 +100,116 @@ namespace ScreenerApp
         private void btnLoadData_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
 
-
-
             BindingList<ScreenerItem> items = new BindingList<ScreenerItem>();
             gridScreener.DataSource = items;
 
-            items.Add(new ScreenerItem() { Market = "CME", SymbolName = "EURUSD", Period = "W1", DaysAgo5 = 0 });
-            items.Add(new ScreenerItem() { Market = "CME", SymbolName = "EURUSD", Period = "D1", DaysAgo5 = 0 });
-            items.Add(new ScreenerItem() { Market = "CME", SymbolName = "EURUSD", Period = "H4", DaysAgo5 = 0 });
-            items.Add(new ScreenerItem() { Market = "CME", SymbolName = "EURUSD", Period = "H1", DaysAgo5 = 0 });
-            items.Add(new ScreenerItem() { Market = "CME", SymbolName = "EURUSD", Period = "M15", DaysAgo5 = 0 });
-            items.Add(new ScreenerItem() { Market = "CME", SymbolName = "EURUSD", Period = "M5", DaysAgo5 = 0 });
-            items.Add(new ScreenerItem() { Market = "CME", SymbolName = "EURUSD", Period = "M1", DaysAgo5 = 0 });
+            var calculator = new Calculator();
 
-            items.Add(new ScreenerItem() { Market = "CME", SymbolName = "GBPUSD", Period = "W1", DaysAgo5 = 0 });
-            items.Add(new ScreenerItem() { Market = "CME", SymbolName = "GBPUSD", Period = "D1", DaysAgo5 = 0 });
-            items.Add(new ScreenerItem() { Market = "CME", SymbolName = "GBPUSD", Period = "H4", DaysAgo5 = 0 });
-            items.Add(new ScreenerItem() { Market = "CME", SymbolName = "GBPUSD", Period = "H1", DaysAgo5 = 0 });
-            items.Add(new ScreenerItem() { Market = "CME", SymbolName = "GBPUSD", Period = "M15", DaysAgo5 = 0 });
-            items.Add(new ScreenerItem() { Market = "CME", SymbolName = "GBPUSD", Period = "M5", DaysAgo5 = 0 });
-            items.Add(new ScreenerItem() { Market = "CME", SymbolName = "GBPUSD", Period = "M1", DaysAgo5 = 0 });
+            var history = MT4_API.GetQuoteHistory(_Securities.Where(w=> w.Periods.Length > 0).ToList());
 
-            items.Add(new ScreenerItem() { Market = "CBOE", SymbolName = "Brent", Period = "W1", DaysAgo5 = 0 });
-            items.Add(new ScreenerItem() { Market = "CBOE", SymbolName = "Brent", Period = "D1", DaysAgo5 = 0 });
-            items.Add(new ScreenerItem() { Market = "CBOE", SymbolName = "Brent", Period = "H4", DaysAgo5 = 0 });
-            items.Add(new ScreenerItem() { Market = "CBOE", SymbolName = "Brent", Period = "H1", DaysAgo5 = 0 });
-            items.Add(new ScreenerItem() { Market = "CBOE", SymbolName = "Brent", Period = "M15", DaysAgo5 = 0 });
-            items.Add(new ScreenerItem() { Market = "CBOE", SymbolName = "Brent", Period = "M5", DaysAgo5 = 0 });
-            items.Add(new ScreenerItem() { Market = "CBOE", SymbolName = "Brent", Period = "M1", DaysAgo5 = 0 });
+            foreach (var h in history)
+            {
+                var item = new ScreenerItem();
+                item.SymbolName = h.SymbolName;
+                item.Market = _Securities.SingleOrDefault(w => w.SymbolName == h.SymbolName).Market;
+                item.Period = h.Period;
+                item.Bars = h.Bars;
+
+                item.Days5Ago = calculator.Calc_DaysAgo5(h.Bars);
+
+                items.Add(item);
+            }
+        }
+
+        private void gvScreener_CustomColumnSort(object sender, DevExpress.XtraGrid.Views.Base.CustomColumnSortEventArgs e)
+        {
+            if (e.Column.FieldName == "Period")
+            {
+                e.Handled = true;
+
+                e.Result = Comparer<int>.Default.Compare(
+                    Period.PeriodToMinutes(e.Value1.ToString()), 
+                    Period.PeriodToMinutes(e.Value2.ToString())
+                );
+            }
+        }
+
+        private ScreenerItem GetScreenerItem(int rowHandle)
+        {
+            var symbol = gvScreener.GetRowCellValue(rowHandle, "SymbolName").ToString();
+            var period = gvScreener.GetRowCellValue(rowHandle, "Period").ToString();
+
+            var bindingList = (BindingList<ScreenerItem>)gridScreener.DataSource;
+            return bindingList.SingleOrDefault(w=> w.SymbolName == symbol && w.Period == period);
+        }
+
+        private void gvScreener_RowClick(object sender, DevExpress.XtraGrid.Views.Grid.RowClickEventArgs e)
+        {
+
+        }
+
+        private void gvScreener_SelectionChanged(object sender, DevExpress.Data.SelectionChangedEventArgs e)
+        {
+            int rowHandle = gvScreener.GetSelectedRows().Length == 1 ? gvScreener.GetSelectedRows()[0] : -1;
+            if (rowHandle == -1)
+                return;
+
+            // Create a stock series.
+            Series series1 = new Series("SeriesBar", ViewType.Stock);
+
+            // Bind the series to data.
+            var screenerItem = GetScreenerItem(rowHandle);
+            series1.DataSource = screenerItem.Bars;
+            series1.SetFinancialDataMembers("Time", "Low", "High", "Open", "Close");
+
+            // Specify that date-time arguments are expected.
+            series1.ArgumentScaleType = ScaleType.DateTime;
+            //Axis.
+
+            // Add the series to the chart.
+            chartGeneral.Series.Clear();
+            chartGeneral.Series.Add(series1);
+
+            // Customize the series view settings.
+            StockSeriesView view = (StockSeriesView)series1.View;
+
+            view.LineThickness = 2;
+            view.LevelLineLength = 0.25;
+
+            // LastPoint config
+            view.LastPoint.LabelDisplayMode = SidePointDisplayMode.DiagramEdge;
+            view.LastPoint.Label.BackColor = Color.Transparent;
+            view.LastPoint.Label.TextColor = Color.Red;
+            view.LastPoint.Label.Border.Color = Color.Red;
+
+            // Specify the series reduction options.
+            view.ReductionOptions.ColorMode = ReductionColorMode.OpenToCloseValue;
+            view.ReductionOptions.Level = StockLevel.Close;
+            view.ReductionOptions.Visible = true;
+
+            // Set point colors.
+            view.Color = Color.Green;
+            view.ReductionOptions.Color = Color.Red;
+
+            // Access the chart's diagram.
+            XYDiagram diagram = (XYDiagram)chartGeneral.Diagram;
+            diagram.AxisX.DateTimeScaleOptions.MeasureUnit = DateTimeMeasureUnit.Minute;
+            diagram.AxisX.DateTimeScaleOptions.ScaleMode = ScaleMode.Manual;
+
+            // Exclude empty ranges from the X-axis range
+            // to avoid gaps in the chart's data.
+            diagram.AxisX.DateTimeScaleOptions.SkipRangesWithoutPoints = true;
+
+            // Hide the range without points at the beginning of the y-axis.
+            diagram.AxisY.WholeRange.AlwaysShowZeroLevel = false;
+            diagram.AxisY.Alignment = AxisAlignment.Far;
+
+            // Hide the legend.
+            chartGeneral.Legend.Visibility = DevExpress.Utils.DefaultBoolean.False;
+
+            // Add a title to the chart.
+            //chartGeneral.Titles.Add(new ChartTitle());
+            //chartGeneral.Titles[0].Text = "Stock Chart";
         }
     }
 }

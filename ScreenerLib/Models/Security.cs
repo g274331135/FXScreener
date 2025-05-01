@@ -1,18 +1,22 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace ScreenerLib
 {
+    [DataContract]
     public class Security
     {
         [JsonIgnore]
         public bool Active { get; set; }
 
+        [JsonProperty(PropertyName = "market")]
         public string Market { get; set; }
 
+        [JsonProperty(PropertyName = "symbol")]
         public string SymbolName { get; set; }
 
-
+        [JsonProperty(PropertyName = "periods")]
         public string[] Periods 
         { 
             get {
@@ -65,7 +69,6 @@ namespace ScreenerLib
         public bool M5 { get; set; }
         [JsonIgnore]
         public bool M1 { get; set; }
-
 
         public override int GetHashCode()
         {

@@ -46,7 +46,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\Account.cs" />
+    <Compile Include="Models\Bar.cs" />
+    <Compile Include="Models\BarsCollection.cs" />
     <Compile Include="Models\ScreenerItem.cs" />
+    <Compile Include="Period.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\Security.cs" />
     <Compile Include="Models\Symbol.cs" />
