@@ -22,6 +22,14 @@ namespace ScreenerApp.Configuration
                     var readResult = reader.ReadToEnd();
                     result = JsonConvert.DeserializeObject<List<Account>>(readResult);
                 }
+
+                foreach(var account in result)
+                {
+                    using (StreamReader reader = new StreamReader(Path.Combine(FilePath, "Accounts", account.Name + ".json")))
+                    {
+                        account.Json = reader.ReadToEnd();
+                    }
+                }
             }
             catch (FileNotFoundException)
             {

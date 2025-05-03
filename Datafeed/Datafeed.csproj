@@ -48,9 +48,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\Bar.cs" />
-    <Compile Include="Models\BarsForSymbol.cs" />
-    <Compile Include="MT4_API.cs" />
+    <Compile Include="DatafeedProviderFactory.cs" />
+    <Compile Include="Providers\MT4API.io\Models\Bar.cs" />
+    <Compile Include="Providers\MT4API.io\Models\BarsForSymbol.cs" />
+    <Compile Include="Providers\MT4API.io\Models\MT4APIConfig.cs" />
+    <Compile Include="Providers\MT4API.io\MT4APIProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

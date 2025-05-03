@@ -1,0 +1,10 @@
+[
+	{
+		Name : "mtapi.io",
+		Provider : "MT4API"
+	},
+	{
+		Name : "AMarkets Demo 01",
+		Provider : "MT4API"
+	}	
+]

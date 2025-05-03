@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interfaces\IDatafeedProvider.cs" />
     <Compile Include="Models\Account.cs" />
     <Compile Include="Models\Bar.cs" />
     <Compile Include="Models\BarsCollection.cs" />

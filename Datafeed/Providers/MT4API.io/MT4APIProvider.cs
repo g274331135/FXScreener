@@ -1,16 +1,19 @@
-﻿using Datafeed.Models;
+﻿using Datafeed.Providers.MT4API.io.Models;
+using Datafeed.Providers.MT4API.Models;
 using Newtonsoft.Json.Linq;
 using ScreenerLib;
+using ScreenerLib.Interfaces;
 using ScreenerLib.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 
-namespace Datafeed
+namespace Datafeed.Providers
 {
-    public static class MT4_API
+    public class MT4APIProvider : IDatafeedProvider
     {
         private static readonly Uri _BaseAddress = new Uri("https://mt4.mtapi.io");
 
@@ -19,35 +22,26 @@ namespace Datafeed
         //private const string _Host = "188.165.206.46";
         //private const int _Port = 444;
 
-        private static string _Token;
+        private string _Token;
 
-        private static HttpClient GetHttpClient()
+        string IDatafeedProvider.Name => "MT4API";
+
+        async Task<bool> IDatafeedProvider.ConnectAsync(string jsonConfig)
         {
-            string proxyURL = @"http://5.189.190.187:8090";
-            WebProxy webProxy = new WebProxy(proxyURL);
 
-            HttpClientHandler httpClientHandler = new HttpClientHandler
-            {
-                //Proxy = webProxy
-            };
-            HttpClient client = new HttpClient(httpClientHandler);
+            var config = Newtonsoft.Json.JsonConvert.DeserializeObject<MT4APIConfig>(jsonConfig);
 
-            return client;
-        }
-
-        public static bool Connect(string user, string password, string host, int port)
-        {
             using (var client = GetHttpClient())
             {
                 //HttpResponseMessage response = client.GetAsync("https://httpbin.org/ip").Result;
                 //string responseContent = response.Content.ReadAsStringAsync().Result;
 
                 client.BaseAddress = _BaseAddress;
-                var urlConnect = string.Format($"Connect?user={user}&password={password}&host={host}&port={port}&connectTimeoutSeconds=30");
-                var responseConnectResult = client.GetAsync(urlConnect).Result;
+                var urlConnect = string.Format($"Connect?user={config.User}&password={config.Password}&host={config.Host}&port={config.Port}&connectTimeoutSeconds=30");
+                var responseConnectResult = await client.GetAsync(urlConnect);
                 if (responseConnectResult.StatusCode == HttpStatusCode.OK)
                 {
-                    _Token = responseConnectResult.Content.ReadAsStringAsync().Result;
+                    _Token = await responseConnectResult.Content.ReadAsStringAsync();
                     return true;
                 }
                 else
@@ -55,7 +49,7 @@ namespace Datafeed
             }
         }
 
-        public static List<Symbol> LoadSymbols()
+        async Task<List<Symbol>> IDatafeedProvider.GetAvailableSymbolsAsync()
         {
             using (var client = GetHttpClient())
             {
@@ -63,15 +57,15 @@ namespace Datafeed
 
                 //SymbolList
                 var urlSymbolList = string.Format($"SymbolList?id={_Token}");
-                var responseSymbolList = client.GetAsync(urlSymbolList).Result;
-                var quoteHistoryResult = responseSymbolList.Content.ReadAsStringAsync().Result;
+                var responseSymbolList = await client.GetAsync(urlSymbolList);
+                var quoteHistoryResult = await responseSymbolList.Content.ReadAsStringAsync();
 
                 var symbolArray = Newtonsoft.Json.JsonConvert.DeserializeObject<string[]>(quoteHistoryResult);
 
                 //SymbolParamsMany
                 var urlSymbolParamsMany = string.Format($"SymbolParamsMany?id={_Token}&symbol={string.Join("&symbol=", symbolArray)}");
-                var responseSymbolParamsMany = client.GetAsync(urlSymbolParamsMany).Result;
-                var symbolParamsManyResult = responseSymbolParamsMany.Content.ReadAsStringAsync().Result;
+                var responseSymbolParamsMany = await client.GetAsync(urlSymbolParamsMany);
+                var symbolParamsManyResult = await responseSymbolParamsMany.Content.ReadAsStringAsync();
 
                 var result = new List<Symbol>();
 
@@ -90,51 +84,7 @@ namespace Datafeed
             }
         }
 
-        public static List<BarsCollection> GetQuoteHistoryMany(List<string> symbols, string period, int depth)
-        {
-            var result = new List<BarsCollection>();
-
-            if (symbols == null || symbols.Count == 0)
-                return result;
-
-            using (var client = GetHttpClient())
-            {
-                client.BaseAddress = _BaseAddress;
-
-                //var urlQuoteHistoryMany = string.Format($"QuoteHistoryMany?id={_Token}&symbol={string.Join("&symbol=", symbols)}&timeframe={period}&from={DateTime.Now.ToString("yyyy-MM-dd")}T00%3A00%3A00&count={depth}");
-                var urlQuoteHistoryMany = string.Format($"QuoteHistoryMany?id={_Token}&symbol={string.Join("&symbol=", symbols)}&timeframe={period}&from={DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}&count={depth}");
-                var responseQuoteHistoryMany = client.GetAsync(urlQuoteHistoryMany).Result;
-                var quoteHistoryManyResult = responseQuoteHistoryMany.Content.ReadAsStringAsync().Result;
-
-                var history = Newtonsoft.Json.JsonConvert.DeserializeObject<List<BarsForSymbol>>(quoteHistoryManyResult);
-
-                // parse
-                foreach(var item in history)
-                {
-                    var barsCollection = new BarsCollection();
-                    barsCollection.SymbolName = item.SymbolName;
-                    barsCollection.Period = period;
-                    barsCollection.Bars = new List<ScreenerLib.Models.Bar>();
-                    foreach (var bar in item.Bars)
-                    {
-                        var b = new ScreenerLib.Models.Bar();
-                        b.Time = bar.Time;
-                        b.Open = bar.Open;
-                        b.High = bar.High;
-                        b.Low = bar.Low;
-                        b.Close = bar.Close;
-                        b.Volume = bar.Volume;
-                        barsCollection.Bars.Add(b);
-                    }
-
-                    result.Add(barsCollection);
-                }
-
-                return result;
-            }
-        }
-
-        public static List<BarsCollection> GetQuoteHistory(List<Security> securities)
+        async Task<List<BarsCollection>> IDatafeedProvider.GetHistoricalDataAsync(List<Security> securities, int depth)
         {
             var reconSymbols = new List<string>();
             var historyCollection = new List<BarsCollection>();
@@ -144,19 +94,19 @@ namespace Datafeed
             {
                 var symbols = securities.Where(w => w.Periods.Any(a => a == period)).Select(s => s.SymbolName).ToList();
 
-                if(symbols.Count == 0)
+                if (symbols.Count == 0)
                 {
                     //load this period if exists symbols in reconSymbols
                     if (reconSymbols.Count > 0)
                     {
-                        var reconHistory = GetQuoteHistoryMany(reconSymbols, period, 7);
+                        var reconHistory = await GetQuoteHistoryManyAsync(reconSymbols, period, 7);
                         historyCollection.AddRange(reconHistory);
                     }
 
                     continue;
                 }
 
-                var history = GetQuoteHistoryMany(symbols, period, 30);
+                var history = await GetQuoteHistoryManyAsync(symbols, period, depth);
                 historyCollection.AddRange(history);
 
 
@@ -164,7 +114,7 @@ namespace Datafeed
                 var reconSymbs = reconSymbols.Except(symbols).ToList();
                 if (reconSymbs.Count > 0)
                 {
-                    var reconHistory = GetQuoteHistoryMany(reconSymbs, period, 7);
+                    var reconHistory = await GetQuoteHistoryManyAsync(reconSymbs, period, 7);
                     historyCollection.AddRange(reconHistory);
                 }
 
@@ -202,7 +152,65 @@ namespace Datafeed
             return result;
         }
 
-        private static ScreenerLib.Models.Bar RecontructLastBar(DateTime timePrevBar, string period, List<BarsCollection> bars)
+        private HttpClient GetHttpClient()
+        {
+            string proxyURL = @"http://5.189.190.187:8090";
+            WebProxy webProxy = new WebProxy(proxyURL);
+
+            HttpClientHandler httpClientHandler = new HttpClientHandler
+            {
+                //Proxy = webProxy
+            };
+            HttpClient client = new HttpClient(httpClientHandler);
+
+            return client;
+        }
+
+        private async Task<List<BarsCollection>> GetQuoteHistoryManyAsync(List<string> symbols, string period, int depth)
+        {
+            var result = new List<BarsCollection>();
+
+            if (symbols == null || symbols.Count == 0)
+                return result;
+
+            using (var client = GetHttpClient())
+            {
+                client.BaseAddress = _BaseAddress;
+
+                //var urlQuoteHistoryMany = string.Format($"QuoteHistoryMany?id={_Token}&symbol={string.Join("&symbol=", symbols)}&timeframe={period}&from={DateTime.Now.ToString("yyyy-MM-dd")}T00%3A00%3A00&count={depth}");
+                var urlQuoteHistoryMany = string.Format($"QuoteHistoryMany?id={_Token}&symbol={string.Join("&symbol=", symbols)}&timeframe={period}&from={DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}&count={depth}");
+                var responseQuoteHistoryMany = await client.GetAsync(urlQuoteHistoryMany);
+                var quoteHistoryManyResult = await responseQuoteHistoryMany.Content.ReadAsStringAsync();
+
+                var history = Newtonsoft.Json.JsonConvert.DeserializeObject<List<BarsForSymbol>>(quoteHistoryManyResult);
+
+                // parse
+                foreach(var item in history)
+                {
+                    var barsCollection = new BarsCollection();
+                    barsCollection.SymbolName = item.SymbolName;
+                    barsCollection.Period = period;
+                    barsCollection.Bars = new List<ScreenerLib.Models.Bar>();
+                    foreach (var bar in item.Bars)
+                    {
+                        var b = new ScreenerLib.Models.Bar();
+                        b.Time = bar.Time;
+                        b.Open = bar.Open;
+                        b.High = bar.High;
+                        b.Low = bar.Low;
+                        b.Close = bar.Close;
+                        b.Volume = bar.Volume;
+                        barsCollection.Bars.Add(b);
+                    }
+
+                    result.Add(barsCollection);
+                }
+
+                return result;
+            }
+        }
+
+        private ScreenerLib.Models.Bar RecontructLastBar(DateTime timePrevBar, string period, List<BarsCollection> bars)
         {
             string[] periods = Period.GetPeriodsLessThen(period);
             if (periods == null)
@@ -242,6 +250,5 @@ namespace Datafeed
 
             return bar;
         }
-
     }
 }

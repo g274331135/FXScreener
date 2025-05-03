@@ -3,7 +3,7 @@ using System;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace Datafeed.Models
+namespace Datafeed.Providers.MT4API.Models
 {
 
     /// <summary>
