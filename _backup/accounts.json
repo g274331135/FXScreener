@@ -6,5 +6,9 @@
 	{
 		Name : "AMarkets Demo 01",
 		Provider : "MT4API"
+	},
+	{
+		Name : "VseBabki",
+		Provider : "Bitget.NET"
 	}	
 ]

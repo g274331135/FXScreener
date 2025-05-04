@@ -46,8 +46,11 @@
             this.beAccount = new DevExpress.XtraBars.BarEditItem();
             this.cbAccounts = new DevExpress.XtraEditors.Repository.RepositoryItemComboBox();
             this.btnConnect = new DevExpress.XtraBars.BarButtonItem();
+            this.beFilter_Periods = new DevExpress.XtraBars.BarEditItem();
+            this.ccePeriods = new DevExpress.XtraEditors.Repository.RepositoryItemCheckedComboBoxEdit();
             this.rpMain = new DevExpress.XtraBars.Ribbon.RibbonPage();
             this.ribbonPageGroup2 = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
+            this.ribbonPageGroup3 = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
             this.ribbonPageGroup1 = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
             this.splitContainerControl2 = new DevExpress.XtraEditors.SplitContainerControl();
             this.gridScreener = new DevExpress.XtraGrid.GridControl();
@@ -63,6 +66,7 @@
             this.chartGeneral = new DevExpress.XtraCharts.ChartControl();
             ((System.ComponentModel.ISupportInitialize)(this.ribbonControl1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cbAccounts)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ccePeriods)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl2.Panel1)).BeginInit();
             this.splitContainerControl2.Panel1.SuspendLayout();
@@ -96,14 +100,16 @@
             this.barButtonGroup1,
             this.barButtonGroup2,
             this.beAccount,
-            this.btnConnect});
+            this.btnConnect,
+            this.beFilter_Periods});
             this.ribbonControl1.Location = new System.Drawing.Point(0, 0);
-            this.ribbonControl1.MaxItemId = 18;
+            this.ribbonControl1.MaxItemId = 19;
             this.ribbonControl1.Name = "ribbonControl1";
             this.ribbonControl1.Pages.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPage[] {
             this.rpMain});
             this.ribbonControl1.RepositoryItems.AddRange(new DevExpress.XtraEditors.Repository.RepositoryItem[] {
-            this.cbAccounts});
+            this.cbAccounts,
+            this.ccePeriods});
             this.ribbonControl1.Size = new System.Drawing.Size(1845, 150);
             // 
             // btnConnectionsEdit
@@ -166,10 +172,36 @@
             this.btnConnect.Name = "btnConnect";
             this.btnConnect.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnConnect_ItemClick);
             // 
+            // beFilter_Periods
+            // 
+            this.beFilter_Periods.Caption = "Периоды";
+            this.beFilter_Periods.Edit = this.ccePeriods;
+            this.beFilter_Periods.Id = 18;
+            this.beFilter_Periods.Name = "beFilter_Periods";
+            // 
+            // ccePeriods
+            // 
+            this.ccePeriods.AutoHeight = false;
+            this.ccePeriods.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.ccePeriods.Items.AddRange(new DevExpress.XtraEditors.Controls.CheckedListBoxItem[] {
+            new DevExpress.XtraEditors.Controls.CheckedListBoxItem("MN1", System.Windows.Forms.CheckState.Checked),
+            new DevExpress.XtraEditors.Controls.CheckedListBoxItem("W1", System.Windows.Forms.CheckState.Checked),
+            new DevExpress.XtraEditors.Controls.CheckedListBoxItem("D1", System.Windows.Forms.CheckState.Checked),
+            new DevExpress.XtraEditors.Controls.CheckedListBoxItem("H4", System.Windows.Forms.CheckState.Checked),
+            new DevExpress.XtraEditors.Controls.CheckedListBoxItem("H1", System.Windows.Forms.CheckState.Checked),
+            new DevExpress.XtraEditors.Controls.CheckedListBoxItem("M30", System.Windows.Forms.CheckState.Checked),
+            new DevExpress.XtraEditors.Controls.CheckedListBoxItem("M15", System.Windows.Forms.CheckState.Checked),
+            new DevExpress.XtraEditors.Controls.CheckedListBoxItem("M5", System.Windows.Forms.CheckState.Checked),
+            new DevExpress.XtraEditors.Controls.CheckedListBoxItem("M1", System.Windows.Forms.CheckState.Checked)});
+            this.ccePeriods.Name = "ccePeriods";
+            this.ccePeriods.CloseUp += new DevExpress.XtraEditors.Controls.CloseUpEventHandler(this.ccePeriods_CloseUp);
+            // 
             // rpMain
             // 
             this.rpMain.Groups.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPageGroup[] {
             this.ribbonPageGroup2,
+            this.ribbonPageGroup3,
             this.ribbonPageGroup1});
             this.rpMain.Name = "rpMain";
             this.rpMain.Text = "Основное";
@@ -181,6 +213,12 @@
             this.ribbonPageGroup2.ItemLinks.Add(this.btnConnect);
             this.ribbonPageGroup2.Name = "ribbonPageGroup2";
             this.ribbonPageGroup2.Text = "Соединение";
+            // 
+            // ribbonPageGroup3
+            // 
+            this.ribbonPageGroup3.ItemLinks.Add(this.beFilter_Periods);
+            this.ribbonPageGroup3.Name = "ribbonPageGroup3";
+            this.ribbonPageGroup3.Text = "Фильтр";
             // 
             // ribbonPageGroup1
             // 
@@ -304,7 +342,6 @@
             this.colMarket.Name = "colMarket";
             this.colMarket.OptionsColumn.AllowEdit = false;
             this.colMarket.OptionsColumn.AllowGroup = DevExpress.Utils.DefaultBoolean.True;
-            this.colMarket.OptionsFilter.AllowFilter = false;
             this.colMarket.SortMode = DevExpress.XtraGrid.ColumnSortMode.Value;
             this.colMarket.Visible = true;
             this.colMarket.Width = 191;
@@ -395,6 +432,7 @@
             this.Load += new System.EventHandler(this.MainForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.ribbonControl1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.cbAccounts)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ccePeriods)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl2.Panel1)).EndInit();
             this.splitContainerControl2.Panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl2.Panel2)).EndInit();
@@ -435,5 +473,8 @@
         private DevExpress.XtraGrid.Views.BandedGrid.GridBand bandWPR5;
         private DevExpress.XtraGrid.Views.BandedGrid.GridBand bandWPR21;
         private DevExpress.XtraCharts.ChartControl chartGeneral;
+        private DevExpress.XtraBars.BarEditItem beFilter_Periods;
+        private DevExpress.XtraEditors.Repository.RepositoryItemCheckedComboBoxEdit ccePeriods;
+        private DevExpress.XtraBars.Ribbon.RibbonPageGroup ribbonPageGroup3;
     }
 }

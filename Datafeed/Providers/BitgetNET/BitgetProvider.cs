@@ -149,8 +149,8 @@ namespace Datafeed.Providers.BitgetNET
         {
             var response = await _Client.FuturesApi.ExchangeData.GetHistoricalKlinesAsync(symbol,
                                     GetKlineIntervalByPeriod(period),
-                                    DateTime.Now.AddMinutes(depth * Period.PeriodToMinutes(period)),
-                                    DateTime.Now.AddMinutes(5)
+                                    DateTime.Now.AddMinutes(-(depth * Period.PeriodToMinutes(period))),
+                                    DateTime.Now.AddMinutes(5), BitgetKlineType.Market, depth
             );
 
             var result = new BarsCollection();

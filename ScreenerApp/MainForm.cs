@@ -1,5 +1,6 @@
 ﻿using Datafeed;
 using DevExpress.Charts.Native;
+using DevExpress.Data.Filtering;
 using DevExpress.Utils;
 using DevExpress.XtraCharts;
 using DevExpress.XtraEditors;
@@ -288,6 +289,15 @@ namespace ScreenerApp
             chartGeneral.Titles[0].Text = $"{screenerItem.SymbolName} - {screenerItem.Period}";
 
             //chartGeneral.RefreshData();
+        }
+
+        private void ccePeriods_CloseUp(object sender, DevExpress.XtraEditors.Controls.CloseUpEventArgs e)
+        {
+            if(e.AcceptValue)
+            {
+                //gvScreener.ActiveFilterCriteria = GroupOperator.
+                gvScreener.ActiveFilterString = $"[Period] in ({string.Join(",", ccePeriods.Items.Where(w => w.CheckState == CheckState.Checked).Select(s=> $"'{s}'").ToList())})";
+            }
         }
     }
 }

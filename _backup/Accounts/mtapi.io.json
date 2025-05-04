@@ -1,6 +1,6 @@
 {
-	User : "501349068",
-	Password : "q1iuxlc",
-	Host : "mt4-demo.roboforex.com",
-	Port : "443"
+	user : "501349068",
+	password : "q1iuxlc",
+	host : "mt4-demo.roboforex.com",
+	port : "443"
 }
