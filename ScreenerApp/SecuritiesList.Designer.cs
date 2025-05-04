@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.panelControl1 = new DevExpress.XtraEditors.PanelControl();
             this.btnSave = new System.Windows.Forms.Button();
             this.btnClose = new System.Windows.Forms.Button();
@@ -47,11 +48,13 @@
             this.colM5 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.colM1 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.colDescription = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.behaviorManager1 = new DevExpress.Utils.Behaviors.BehaviorManager(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.panelControl1)).BeginInit();
             this.panelControl1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridSecurities)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvSecurities)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cePeriod)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.behaviorManager1)).BeginInit();
             this.SuspendLayout();
             // 
             // panelControl1
@@ -114,7 +117,11 @@
             this.colM1,
             this.colDescription});
             this.gvSecurities.GridControl = this.gridSecurities;
+            this.gvSecurities.GroupCount = 1;
             this.gvSecurities.Name = "gvSecurities";
+            this.gvSecurities.SortInfo.AddRange(new DevExpress.XtraGrid.Columns.GridColumnSortInfo[] {
+            new DevExpress.XtraGrid.Columns.GridColumnSortInfo(this.colMarket, DevExpress.Data.ColumnSortOrder.Ascending),
+            new DevExpress.XtraGrid.Columns.GridColumnSortInfo(this.colSymbolName, DevExpress.Data.ColumnSortOrder.Ascending)});
             // 
             // colActive
             // 
@@ -141,6 +148,7 @@
             this.colMarket.MaxWidth = 100;
             this.colMarket.MinWidth = 100;
             this.colMarket.Name = "colMarket";
+            this.colMarket.OptionsColumn.AllowEdit = false;
             this.colMarket.OptionsColumn.AllowGroup = DevExpress.Utils.DefaultBoolean.True;
             this.colMarket.Visible = true;
             this.colMarket.VisibleIndex = 1;
@@ -153,9 +161,10 @@
             this.colSymbolName.MaxWidth = 100;
             this.colSymbolName.MinWidth = 100;
             this.colSymbolName.Name = "colSymbolName";
+            this.colSymbolName.OptionsColumn.AllowEdit = false;
             this.colSymbolName.OptionsColumn.AllowGroup = DevExpress.Utils.DefaultBoolean.False;
             this.colSymbolName.Visible = true;
-            this.colSymbolName.VisibleIndex = 2;
+            this.colSymbolName.VisibleIndex = 1;
             this.colSymbolName.Width = 100;
             // 
             // colMN1
@@ -168,7 +177,7 @@
             this.colMN1.Name = "colMN1";
             this.colMN1.OptionsColumn.AllowGroup = DevExpress.Utils.DefaultBoolean.False;
             this.colMN1.Visible = true;
-            this.colMN1.VisibleIndex = 3;
+            this.colMN1.VisibleIndex = 2;
             this.colMN1.Width = 40;
             // 
             // colW1
@@ -181,7 +190,7 @@
             this.colW1.Name = "colW1";
             this.colW1.OptionsColumn.AllowGroup = DevExpress.Utils.DefaultBoolean.False;
             this.colW1.Visible = true;
-            this.colW1.VisibleIndex = 4;
+            this.colW1.VisibleIndex = 3;
             this.colW1.Width = 40;
             // 
             // colD1
@@ -194,7 +203,7 @@
             this.colD1.Name = "colD1";
             this.colD1.OptionsColumn.AllowGroup = DevExpress.Utils.DefaultBoolean.False;
             this.colD1.Visible = true;
-            this.colD1.VisibleIndex = 5;
+            this.colD1.VisibleIndex = 4;
             this.colD1.Width = 40;
             // 
             // colH4
@@ -207,7 +216,7 @@
             this.colH4.Name = "colH4";
             this.colH4.OptionsColumn.AllowGroup = DevExpress.Utils.DefaultBoolean.False;
             this.colH4.Visible = true;
-            this.colH4.VisibleIndex = 6;
+            this.colH4.VisibleIndex = 5;
             this.colH4.Width = 40;
             // 
             // colH1
@@ -220,7 +229,7 @@
             this.colH1.Name = "colH1";
             this.colH1.OptionsColumn.AllowGroup = DevExpress.Utils.DefaultBoolean.False;
             this.colH1.Visible = true;
-            this.colH1.VisibleIndex = 7;
+            this.colH1.VisibleIndex = 6;
             this.colH1.Width = 40;
             // 
             // colM30
@@ -233,7 +242,7 @@
             this.colM30.Name = "colM30";
             this.colM30.OptionsColumn.AllowGroup = DevExpress.Utils.DefaultBoolean.False;
             this.colM30.Visible = true;
-            this.colM30.VisibleIndex = 8;
+            this.colM30.VisibleIndex = 7;
             this.colM30.Width = 40;
             // 
             // colM15
@@ -246,7 +255,7 @@
             this.colM15.Name = "colM15";
             this.colM15.OptionsColumn.AllowGroup = DevExpress.Utils.DefaultBoolean.False;
             this.colM15.Visible = true;
-            this.colM15.VisibleIndex = 9;
+            this.colM15.VisibleIndex = 8;
             this.colM15.Width = 40;
             // 
             // colM5
@@ -259,7 +268,7 @@
             this.colM5.Name = "colM5";
             this.colM5.OptionsColumn.AllowGroup = DevExpress.Utils.DefaultBoolean.False;
             this.colM5.Visible = true;
-            this.colM5.VisibleIndex = 10;
+            this.colM5.VisibleIndex = 9;
             this.colM5.Width = 40;
             // 
             // colM1
@@ -272,16 +281,17 @@
             this.colM1.Name = "colM1";
             this.colM1.OptionsColumn.AllowGroup = DevExpress.Utils.DefaultBoolean.False;
             this.colM1.Visible = true;
-            this.colM1.VisibleIndex = 11;
+            this.colM1.VisibleIndex = 10;
             this.colM1.Width = 40;
             // 
             // colDescription
             // 
             this.colDescription.Caption = "Описание";
             this.colDescription.Name = "colDescription";
+            this.colDescription.OptionsColumn.AllowEdit = false;
             this.colDescription.OptionsColumn.AllowGroup = DevExpress.Utils.DefaultBoolean.False;
             this.colDescription.Visible = true;
-            this.colDescription.VisibleIndex = 12;
+            this.colDescription.VisibleIndex = 11;
             // 
             // SecuritiesList
             // 
@@ -302,6 +312,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.gridSecurities)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvSecurities)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.cePeriod)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.behaviorManager1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -327,5 +338,6 @@
         private DevExpress.XtraGrid.Columns.GridColumn colM5;
         private DevExpress.XtraGrid.Columns.GridColumn colM1;
         private DevExpress.XtraGrid.Columns.GridColumn colDescription;
+        private DevExpress.Utils.Behaviors.BehaviorManager behaviorManager1;
     }
 }

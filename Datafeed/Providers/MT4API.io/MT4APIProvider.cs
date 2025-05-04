@@ -29,7 +29,7 @@ namespace Datafeed.Providers
         async Task<bool> IDatafeedProvider.ConnectAsync(string jsonConfig)
         {
 
-            var config = Newtonsoft.Json.JsonConvert.DeserializeObject<MT4APIConfig>(jsonConfig);
+            var config = Newtonsoft.Json.JsonConvert.DeserializeObject<BitgetNetConfig>(jsonConfig);
 
             using (var client = GetHttpClient())
             {
@@ -88,7 +88,6 @@ namespace Datafeed.Providers
         {
             var reconSymbols = new List<string>();
             var historyCollection = new List<BarsCollection>();
-
 
             foreach (var period in Period.GetPeriods())
             {

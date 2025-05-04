@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Datafeed.Providers.MT4API.io.Models
 {
-    internal class MT4APIConfig
+    internal class BitgetNetConfig
     {
         [JsonProperty(PropertyName = "user")]
         public string User { get; set; }
